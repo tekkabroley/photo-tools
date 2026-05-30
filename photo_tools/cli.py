@@ -11,6 +11,7 @@ import typer
 from photo_tools.exceptions import PhotoToolsError
 from photo_tools.metadata.extract import extract_photo_metadata
 from photo_tools.metadata.markdown import create_metadata_markdown
+from photo_tools.s3_upload import upload_to_s3
 
 app = typer.Typer(
     name="photo-tools",
@@ -78,6 +79,26 @@ def create_metadata_markdown_cmd(
     def action() -> None:
         count = create_metadata_markdown(input_path, output_path)
         typer.echo(f"Wrote {count} markdown file(s) to {output_path}")
+
+    _run_command(action)
+
+
+@app.command("write-to-s3")
+def write_to_s3(
+    input_path: Annotated[
+        Path,
+        typer.Argument(help="File or directory to upload."),
+    ],
+    s3_path: Annotated[
+        str,
+        typer.Argument(help="Destination S3 URI (e.g. s3://my-bucket/prefix/)."),
+    ],
+) -> None:
+    """Upload a file or directory tree to S3 using credentials from .env / .env.local."""
+
+    def action() -> None:
+        count = upload_to_s3(input_path, s3_path)
+        typer.echo(f"Uploaded {count} file(s) to {s3_path}")
 
     _run_command(action)
 

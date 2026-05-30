@@ -6,6 +6,7 @@ from photo_tools.paths import (
     DuplicateStemTracker,
     is_json_file,
     is_photo_file,
+    iter_all_files,
     iter_json_files,
     iter_photo_files,
 )
@@ -38,6 +39,12 @@ def test_iter_photo_files_single_file(sample_jpg: Path) -> None:
 def test_iter_photo_files_directory(nested_photo_tree: Path) -> None:
     files = list(iter_photo_files(nested_photo_tree))
     assert len(files) == 3
+
+
+def test_iter_all_files_directory_includes_non_photos(nested_photo_tree: Path) -> None:
+    files = list(iter_all_files(nested_photo_tree))
+    assert len(files) == 5
+    assert any(p.name == "notes.txt" for p in files)
 
 
 def test_iter_json_files_directory(nested_json_tree: Path) -> None:
