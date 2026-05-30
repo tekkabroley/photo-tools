@@ -17,8 +17,43 @@ CLI utility to extract metadata from photo files (ARW, JPG, PNG) and generate YA
 
 ## Install
 
-```bash
+The project uses a virtual environment at `.venv/`.
+
+**Windows (cmd):**
+
+```cmd
+python -m venv .venv
+.venv\Scripts\activate.bat
 pip install -e ".[dev]"
+```
+
+Or use the helper:
+
+```cmd
+activate-cli.cmd
+```
+
+**Windows (PowerShell):**
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+```
+
+**Linux / macOS:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
+
+CLI-only dependencies (no test tools):
+
+```bash
+pip install -r requirements.txt
+pip install -e .
 ```
 
 ## Usage
@@ -78,6 +113,8 @@ photo-tools -v get-photo-metadata photos/ output/json/
 ```
 
 ## Tests
+
+With the venv activated:
 
 ```bash
 pytest

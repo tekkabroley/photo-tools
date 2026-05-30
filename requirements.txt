@@ -1,0 +1,5 @@
+# Runtime dependencies for the photo-tools CLI.
+# Install: pip install -r requirements.txt && pip install -e .
+
+typer>=0.12
+pyexiftool>=0.5
