@@ -1,17 +1,5 @@
-# Runtime dependencies for the photo-tools CLI (main group only).
-# Regenerate after changing pyproject.toml:
-#   poetry self add poetry-plugin-export   # once per Poetry install
-#   poetry export -f requirements.txt --without-hashes --only main -o requirements.txt
-#
-# Install with Poetry (recommended): poetry install --only main
-# Install with pip: pip install -r requirements.txt && pip install -e .
+# Runtime dependencies for the photo-tools CLI.
+# Install: pip install -r requirements.txt && pip install -e .
 
-annotated-doc==0.0.4 ; python_version >= "3.10" and python_version < "4.0"
-colorama==0.4.6 ; python_version >= "3.10" and python_version < "4.0" and platform_system == "Windows"
-markdown-it-py==4.2.0 ; python_version >= "3.10" and python_version < "4.0"
-mdurl==0.1.2 ; python_version >= "3.10" and python_version < "4.0"
-pyexiftool==0.5.6 ; python_version >= "3.10" and python_version < "4.0"
-pygments==2.20.0 ; python_version >= "3.10" and python_version < "4.0"
-rich==15.0.0 ; python_version >= "3.10" and python_version < "4.0"
-shellingham==1.5.4 ; python_version >= "3.10" and python_version < "4.0"
-typer==0.26.4 ; python_version >= "3.10" and python_version < "4.0"
+typer>=0.12
+pyexiftool>=0.5

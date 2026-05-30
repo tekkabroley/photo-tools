@@ -17,27 +17,43 @@ CLI utility to extract metadata from photo files (ARW, JPG, PNG) and generate YA
 
 ## Install
 
-### Poetry (recommended)
+The project uses a virtual environment at `.venv/`.
 
-Requires [Poetry](https://python-poetry.org/docs/#installation). The project uses an in-project virtual environment at `.venv/`.
+**Windows (cmd):**
 
-```bash
-poetry install          # CLI + dev/test dependencies
-poetry run photo-tools --help
+```cmd
+python -m venv .venv
+.venv\Scripts\activate.bat
+pip install -e ".[dev]"
 ```
 
-CLI-only install (no pytest, pillow, etc.):
+Or use the helper:
 
-```bash
-poetry install --only main
+```cmd
+activate-cli.cmd
 ```
 
-### pip
+**Windows (PowerShell):**
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+```
+
+**Linux / macOS:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
+
+CLI-only dependencies (no test tools):
 
 ```bash
 pip install -r requirements.txt
 pip install -e .
-pip install pytest pytest-cov pillow piexif
 ```
 
 ## Usage
@@ -98,9 +114,11 @@ photo-tools -v get-photo-metadata photos/ output/json/
 
 ## Tests
 
+With the venv activated:
+
 ```bash
-poetry run pytest
-poetry run pytest --cov=photo_tools --cov-report=term-missing
+pytest
+pytest --cov=photo_tools --cov-report=term-missing
 ```
 
 Tests marked `requires_exiftool` are skipped when ExifTool is not installed.
