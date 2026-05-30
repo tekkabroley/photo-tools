@@ -15,6 +15,7 @@ from photo_tools.exceptions import UserError
 from photo_tools.metadata.markdown import (
     build_image_url,
     create_metadata_markdown,
+    load_metadata_json,
     map_frontmatter_fields,
     render_frontmatter,
 )
@@ -55,6 +56,27 @@ def test_markdown_location_composite() -> None:
     assert fields["location"] == "Portland, OR"
 
 
+def test_get_tag_namespaced_key() -> None:
+    metadata = {"XMP:DateTimeOriginal": "2025:01:01 00:00:00"}
+    fields = map_frontmatter_fields(metadata, "x")
+    assert fields["date"] == "2025:01:01 00:00:00"
+
+
+def test_markdown_location_city_only() -> None:
+    fields = map_frontmatter_fields({"City": "Paris"}, "x")
+    assert fields["location"] == "Paris"
+
+
+def test_markdown_location_gps() -> None:
+    fields = map_frontmatter_fields({"GPSPosition": "45.5, -122.6"}, "x")
+    assert fields["location"] == "45.5, -122.6"
+
+
+def test_markdown_location_direct() -> None:
+    fields = map_frontmatter_fields({"Location": "Studio"}, "x")
+    assert fields["location"] == "Studio"
+
+
 def test_markdown_single_file(fixtures_dir: Path, tmp_path: Path) -> None:
     json_path = fixtures_dir / "sample_metadata.json"
     out = tmp_path / "out"
@@ -77,6 +99,13 @@ def test_markdown_invalid_json(tmp_path: Path) -> None:
     bad.write_text("{not json", encoding="utf-8")
     with pytest.raises(UserError, match="Invalid JSON"):
         create_metadata_markdown(bad, tmp_path / "out")
+
+
+def test_load_metadata_json_not_object(tmp_path: Path) -> None:
+    path = tmp_path / "array.json"
+    path.write_text("[]", encoding="utf-8")
+    with pytest.raises(UserError, match="Expected JSON object"):
+        load_metadata_json(path)
 
 
 def test_markdown_missing_input(tmp_path: Path) -> None:
@@ -159,11 +188,13 @@ def test_cli_integration(sample_jpg: Path, tmp_path: Path) -> None:
     result = runner.invoke(
         app,
         ["get-photo-metadata", str(sample_jpg), str(meta_out)],
+        color=False,
     )
     assert result.exit_code == 0
     result = runner.invoke(
         app,
         ["create-metadata-markdown", str(meta_out / "sample.json"), str(md_out)],
+        color=False,
     )
     assert result.exit_code == 0
     assert (md_out / "sample.md").exists()

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import exiftool
+from exiftool.exceptions import ExifToolException
 
 from photo_tools.exceptions import DependencyError, UserError
 from photo_tools.paths import (
@@ -42,13 +43,13 @@ def read_photo_metadata(photo_path: Path) -> dict[str, Any]:
     try:
         with exiftool.ExifToolHelper() as helper:
             results = helper.get_metadata(str(photo_path))
-    except exiftool.ExifToolExecuteError as exc:
-        raise DependencyError(
-            "ExifTool failed. Ensure exiftool is installed and on PATH."
-        ) from exc
     except FileNotFoundError as exc:
         raise DependencyError(
             "exiftool binary not found. Install ExifTool and ensure it is on PATH."
+        ) from exc
+    except ExifToolException as exc:
+        raise DependencyError(
+            "ExifTool failed. Ensure exiftool is installed and on PATH."
         ) from exc
 
     if not results:

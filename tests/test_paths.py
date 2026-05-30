@@ -51,3 +51,23 @@ def test_duplicate_stem_tracker_skips_second() -> None:
     second = Path("/photos/b/IMG.jpg")
     assert tracker.accept(first, "IMG") is True
     assert tracker.accept(second, "IMG") is False
+
+
+def test_iter_photo_files_non_photo_file(tmp_path: Path) -> None:
+    path = tmp_path / "notes.txt"
+    path.write_text("x", encoding="utf-8")
+    assert list(iter_photo_files(path)) == []
+
+
+def test_iter_photo_files_missing_path(tmp_path: Path) -> None:
+    assert list(iter_photo_files(tmp_path / "missing")) == []
+
+
+def test_iter_json_files_non_json_file(tmp_path: Path) -> None:
+    path = tmp_path / "photo.jpg"
+    path.write_bytes(b"\xff\xd8\xff")
+    assert list(iter_json_files(path)) == []
+
+
+def test_iter_json_files_missing_path(tmp_path: Path) -> None:
+    assert list(iter_json_files(tmp_path / "missing")) == []

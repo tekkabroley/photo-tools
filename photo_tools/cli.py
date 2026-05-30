@@ -24,15 +24,12 @@ def _configure_logging(verbose: bool) -> None:
     logging.basicConfig(level=level, format="%(levelname)s: %(message)s")
 
 
-def _handle_errors(func):
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except PhotoToolsError as exc:
-            typer.echo(str(exc), err=True)
-            raise typer.Exit(code=exc.exit_code) from exc
-
-    return wrapper
+def _run_command(action) -> None:
+    try:
+        action()
+    except PhotoToolsError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=exc.exit_code) from exc
 
 
 @app.callback()
@@ -46,7 +43,6 @@ def main(
 
 
 @app.command("get-photo-metadata")
-@_handle_errors
 def get_photo_metadata(
     input_path: Annotated[
         Path,
@@ -58,12 +54,15 @@ def get_photo_metadata(
     ],
 ) -> None:
     """Extract all metadata from ARW, JPG, and PNG files and write JSON."""
-    count = extract_photo_metadata(input_path, output_path)
-    typer.echo(f"Wrote {count} metadata file(s) to {output_path}")
+
+    def action() -> None:
+        count = extract_photo_metadata(input_path, output_path)
+        typer.echo(f"Wrote {count} metadata file(s) to {output_path}")
+
+    _run_command(action)
 
 
 @app.command("create-metadata-markdown")
-@_handle_errors
 def create_metadata_markdown_cmd(
     input_path: Annotated[
         Path,
@@ -75,8 +74,12 @@ def create_metadata_markdown_cmd(
     ],
 ) -> None:
     """Create YAML-frontmatter markdown from metadata JSON files."""
-    count = create_metadata_markdown(input_path, output_path)
-    typer.echo(f"Wrote {count} markdown file(s) to {output_path}")
+
+    def action() -> None:
+        count = create_metadata_markdown(input_path, output_path)
+        typer.echo(f"Wrote {count} markdown file(s) to {output_path}")
+
+    _run_command(action)
 
 
 if __name__ == "__main__":

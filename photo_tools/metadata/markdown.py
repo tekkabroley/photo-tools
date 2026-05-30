@@ -96,7 +96,7 @@ def render_frontmatter(fields: dict[str, str]) -> str:
         lines.append(f"{key}: {fields[key]}")
     lines.append("---")
     lines.append("")
-    return "\n".join(lines)
+    return "\n".join(lines) + "\n"
 
 
 def load_metadata_json(json_path: Path) -> dict[str, Any]:
