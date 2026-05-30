@@ -40,6 +40,20 @@ def iter_photo_files(input_path: Path) -> Iterator[Path]:
             yield path
 
 
+def iter_all_files(input_path: Path) -> Iterator[Path]:
+    """Yield all files from a single file or recursive directory walk."""
+    if input_path.is_file():
+        yield input_path
+        return
+
+    if not input_path.is_dir():
+        return
+
+    for path in sorted(input_path.rglob("*")):
+        if path.is_file():
+            yield path
+
+
 def iter_json_files(input_path: Path) -> Iterator[Path]:
     """Yield JSON files from a single file or recursive directory walk."""
     if input_path.is_file():

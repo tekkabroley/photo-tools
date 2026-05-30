@@ -106,6 +106,31 @@ height: 6143
 
 Missing metadata fields are written blank. `image` is always constructed.
 
+### Upload files to S3
+
+```bash
+photo-tools write-to-s3 INPUT_PATH S3_PATH
+```
+
+- `INPUT_PATH` — file or directory (walks subdirectories; uploads every file)
+- `S3_PATH` — destination URI, e.g. `s3://my-bucket/gallery/`
+
+Directory uploads preserve relative paths under the S3 prefix. A single file is placed directly under the prefix using its filename.
+
+Credentials are read from `.env` and `.env.local` in the **current working directory** (`.env.local` overrides `.env`). Copy `.env.example` to get started:
+
+```bash
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_DEFAULT_REGION=us-west-2
+```
+
+Example:
+
+```bash
+photo-tools write-to-s3 C:\Users\alexb\Pictures\portfolio\ s3://my-bucket/gallery/
+```
+
 ### Options
 
 ```bash
