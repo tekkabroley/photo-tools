@@ -11,7 +11,7 @@ from typer.testing import CliRunner
 from photo_tools.cli import app
 from photo_tools.exceptions import UserError
 from photo_tools.metadata.extract import extract_photo_metadata, read_photo_metadata
-from tests.conftest import requires_exiftool
+from markers import requires_exiftool
 
 runner = CliRunner()
 

@@ -18,7 +18,7 @@ from photo_tools.metadata.markdown import (
     map_frontmatter_fields,
     render_frontmatter,
 )
-from tests.conftest import requires_exiftool
+from markers import requires_exiftool
 
 runner = CliRunner()
 

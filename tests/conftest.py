@@ -2,24 +2,15 @@
 
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 
 import piexif
 import pytest
 from PIL import Image
 
+from markers import requires_exiftool
+
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
-
-
-def exiftool_available() -> bool:
-    return shutil.which("exiftool") is not None
-
-
-requires_exiftool = pytest.mark.skipif(
-    not exiftool_available(),
-    reason="exiftool binary not installed",
-)
 
 
 @pytest.fixture
