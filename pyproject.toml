@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "photo-tools"
+version = "0.1.0"
+description = "CLI to extract photo metadata and generate markdown frontmatter"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "typer>=0.12",
+  "pyexiftool>=0.5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-cov>=5",
+  "pillow>=10",
+  "piexif>=1.1",
+]
+
+[project.scripts]
+photo-tools = "photo_tools.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["photo_tools*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "requires_exiftool: tests that need the exiftool binary installed",
+]
+
+[tool.coverage.run]
+source = ["photo_tools"]
+omit = ["photo_tools/__main__.py"]
+
+[tool.coverage.report]
+fail_under = 90
+include = ["photo_tools/metadata/*", "photo_tools/paths.py"]
