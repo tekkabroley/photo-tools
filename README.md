@@ -17,8 +17,27 @@ CLI utility to extract metadata from photo files (ARW, JPG, PNG) and generate YA
 
 ## Install
 
+### Poetry (recommended)
+
+Requires [Poetry](https://python-poetry.org/docs/#installation). The project uses an in-project virtual environment at `.venv/`.
+
 ```bash
-pip install -e ".[dev]"
+poetry install          # CLI + dev/test dependencies
+poetry run photo-tools --help
+```
+
+CLI-only install (no pytest, pillow, etc.):
+
+```bash
+poetry install --only main
+```
+
+### pip
+
+```bash
+pip install -r requirements.txt
+pip install -e .
+pip install pytest pytest-cov pillow piexif
 ```
 
 ## Usage
@@ -80,8 +99,8 @@ photo-tools -v get-photo-metadata photos/ output/json/
 ## Tests
 
 ```bash
-pytest
-pytest --cov=photo_tools --cov-report=term-missing
+poetry run pytest
+poetry run pytest --cov=photo_tools --cov-report=term-missing
 ```
 
 Tests marked `requires_exiftool` are skipped when ExifTool is not installed.
