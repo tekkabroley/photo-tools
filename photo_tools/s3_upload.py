@@ -1,4 +1,4 @@
-"""Upload files to Amazon S3 using credentials from .env / .env.local."""
+"""Sync local files to Amazon S3 using credentials from .env / .env.local."""
 
 from __future__ import annotations
 
@@ -51,6 +51,18 @@ def parse_s3_path(s3_path: str) -> tuple[str, str]:
     return bucket, prefix
 
 
+def relative_name_for_file(
+    file_path: Path,
+    input_path: Path,
+    *,
+    single_file_input: bool,
+) -> str:
+    """Return the file name used to compare local files against S3 keys."""
+    if single_file_input:
+        return file_path.name
+    return file_path.relative_to(input_path).as_posix()
+
+
 def object_key_for_file(
     file_path: Path,
     input_path: Path,
@@ -59,16 +71,39 @@ def object_key_for_file(
     single_file_input: bool,
 ) -> str:
     """Build the S3 object key for a local file."""
-    if single_file_input:
-        relative = file_path.name
-    else:
-        relative = file_path.relative_to(input_path).as_posix()
-
+    relative = relative_name_for_file(
+        file_path, input_path, single_file_input=single_file_input
+    )
     return f"{key_prefix}{relative}" if key_prefix else relative
 
 
-def upload_to_s3(input_path: Path, s3_path: str) -> int:
-    """Upload one file or a directory tree to S3. Returns count of files uploaded."""
+def list_s3_relative_names(client, bucket: str, key_prefix: str) -> set[str]:
+    """List object keys under key_prefix and return their relative names."""
+    relative_names: set[str] = set()
+    paginator = client.get_paginator("list_objects_v2")
+
+    try:
+        pages = paginator.paginate(Bucket=bucket, Prefix=key_prefix)
+    except (BotoCoreError, ClientError) as exc:
+        raise DependencyError(
+            f"Failed to list objects in s3://{bucket}/{key_prefix}: {exc}"
+        ) from exc
+
+    for page in pages:
+        for obj in page.get("Contents", []):
+            key = obj["Key"]
+            if key.endswith("/"):
+                continue
+            if key_prefix and key.startswith(key_prefix):
+                relative_names.add(key[len(key_prefix) :])
+            else:
+                relative_names.add(key)
+
+    return relative_names
+
+
+def sync_to_s3(input_path: Path, s3_path: str) -> int:
+    """Sync one file or a directory tree to S3, uploading only missing objects."""
     if not input_path.exists():
         raise UserError(f"Input path does not exist: {input_path}")
 
@@ -86,9 +121,27 @@ def upload_to_s3(input_path: Path, s3_path: str) -> int:
     except BotoCoreError as exc:
         raise DependencyError(f"Failed to create S3 client: {exc}") from exc
 
+    s3_names = list_s3_relative_names(client, bucket, key_prefix)
     single_file_input = input_path.is_file()
     uploaded = 0
     for file_path in files:
+        relative_name = relative_name_for_file(
+            file_path, input_path, single_file_input=single_file_input
+        )
+        if relative_name in s3_names:
+            logger.info(
+                "Skipping %s (already present at s3://%s/%s)",
+                file_path,
+                bucket,
+                object_key_for_file(
+                    file_path,
+                    input_path,
+                    key_prefix,
+                    single_file_input=single_file_input,
+                ),
+            )
+            continue
+
         key = object_key_for_file(
             file_path, input_path, key_prefix, single_file_input=single_file_input
         )

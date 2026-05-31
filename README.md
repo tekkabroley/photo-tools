@@ -106,16 +106,18 @@ height: 6143
 
 Missing metadata fields are written blank. `image` is always constructed.
 
-### Upload files to S3
+### Sync files to S3
 
 ```bash
-photo-tools write-to-s3 INPUT_PATH S3_PATH
+photo-tools sync-to-s3 INPUT_PATH S3_PATH
 ```
 
-- `INPUT_PATH` — file or directory (walks subdirectories; uploads every file)
+- `INPUT_PATH` — file or directory (walks subdirectories)
 - `S3_PATH` — destination URI, e.g. `s3://my-bucket/gallery/`
 
-Directory uploads preserve relative paths under the S3 prefix. A single file is placed directly under the prefix using its filename.
+One-way sync from local to S3: lists objects at `S3_PATH`, compares file names against `INPUT_PATH`, and uploads only files that are missing in S3. Files already present in S3 are left unchanged, and files that exist only in S3 are not deleted.
+
+Directory sync preserves relative paths under the S3 prefix. A single file is placed directly under the prefix using its filename.
 
 Credentials are read from `.env` and `.env.local` in the **current working directory** (`.env.local` overrides `.env`). Copy `.env.example` to get started:
 
@@ -128,7 +130,7 @@ AWS_DEFAULT_REGION=us-west-2
 Example:
 
 ```bash
-photo-tools write-to-s3 C:\Users\alexb\Pictures\portfolio\ s3://my-bucket/gallery/
+photo-tools sync-to-s3 C:\Users\alexb\Pictures\portfolio\ s3://my-bucket/gallery/
 ```
 
 ### Options
